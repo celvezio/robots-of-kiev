@@ -10,7 +10,14 @@ def ccw(p1, p2, p3):
 	ccw = 0: colinear
 	ccw is a determinant that gives the signed area of the triangle formed by p1, p2 and p3
 	"""
-	return (p2[0] - p1[0])*(p3[1] - p1[1]) - (p2[1] - p1[1])*(p3[0] - p1[0])
+	ccw = (p2[0] - p1[0])*(p3[1] - p1[1]) - (p2[1] - p1[1])*(p3[0] - p1[0])
+
+	if debug:
+		print 'ccw args:'
+		pprint((p1,p2,p3))
+		print 'ccw: %s' % ccw
+
+	return ccw
 
 def theta(p0,pi):
 	""" This doesn't actually return theta; however, it maintains the same ordering. """
@@ -49,8 +56,8 @@ def convex_hull(vs):
 	vs[1:] = sorted(vs[1:], lambda x,y: cmp(theta(p0,x), theta(p0,y)) if cmp(theta(p0,x), theta(p0,y)) else dist(p0,x,y))
 
 	if debug:
-		print('\np0:')
-		pprint(p0)
+		# print('\np0:')
+		# pprint(p0)
 		print('\nSorted pts:')
 		pprint(vs)
 
@@ -63,25 +70,30 @@ def convex_hull(vs):
 	for i in range(m, len(vs)):
 
 		if debug:
+			print('i: %d, m: %d ' % (i,m))
 			pprint(hull)
-		try:
-			while ccw(vs[m], vs[m-1], vs[i]) >= 0:
-				hull.pop()
-				m -= 1
-		except IndexError:
-			print 'm', m
-			print 'i', i
+		while ccw(hull[-1], hull[-2], vs[i]) >= 0:
+			hull.pop()
+			m -= 1
+			if debug:
+				print('m: %d ' % (m))
+				pprint(hull)
 		hull.append(vs[m])
 		m += 1
 		vs[i], vs[m] = vs[m], vs[i]
+		if debug:
+			print('m: %d ' % (m))
+			pprint(hull)
 
-	return hull	
+	return hull
 
 
 if __name__ == '__main__':
 	from pprint import pprint
 	debug = True
-	voila = [[1,1], [2,2], [1,-1], [2,-2], [-1,-1], [-2,-2], [-1,1], [-2,2],]  # concentric squares
+	# voila = [[1,1], [2,2], [1,-1], [2,-2], [-1,-1], [-2,-2], [-1,1], [-2,2],]  # concentric squares
+	# voila = [(-1.0, 3.0), (-1.0, -1.0), (3.0, -1.0), (3.0, 3.0), (1.0, 3.0)]
+	voila = [(-1.0, 3.0), (-1.0, -1.0), (3.0, -1.0), (3.0, 3.0), (1.0, 3.0), (-1.0, 1.0), (3.0, 1.0), (1.0, 1.0), (1.0, -1.0)]
 	hull = convex_hull(voila)
 	print('Hull:')
 	pprint(hull)
